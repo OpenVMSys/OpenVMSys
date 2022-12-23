@@ -5,7 +5,7 @@ namespace OpenVMSys.Core.FlightServer.FlightServerModule;
 
 public static class ClientHandler
 {
-    public static void Analyze(List<Client> clients, Client client, NetworkStream stream, string command, OmsConfig config)
+    public static void Handle(List<Client> clients, Client client, NetworkStream stream, string command, OfsConfig config)
     {
         var fields = command.Split(":");
         if (fields.Length == 0)
@@ -41,22 +41,6 @@ public static class ClientHandler
                     break;
                 }
                 break;
-            case "RMCLIENT"://Remove Client
-                if (fields.Length != 1)
-                {
-                    SyntaxError(stream);
-                    break;
-                }
-
-                clients.Remove(client);
-                break;
-            case "ADDCLIENT":
-                if (fields.Length != 8)
-                {
-                    SyntaxError(stream);
-                    break;
-                }
-                break;
             case "PD":
                 if (fields.Length != 8)
                 {
@@ -75,7 +59,7 @@ public static class ClientHandler
         stream.WriteAsync(Encoding.UTF8.GetBytes("PONG:" + data));
     }
 
-    private static void Notify(Stream stream, OmsConfig config)
+    private static void Notify(Stream stream, OfsConfig config)
     {
         stream.WriteAsync(Encoding.UTF8.GetBytes("NOTIFY:" + config.ServerIdent + ":" + config.FlightServerName +
                                                  ":" + config.MaintainerEmail + ":" + config.HostName+":"+config.Location));

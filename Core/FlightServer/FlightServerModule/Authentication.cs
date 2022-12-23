@@ -2,7 +2,7 @@ using System.Net.Sockets;
 using System.Text;
 using Path = OpenSDK.Path;
 
-namespace OpenVMSys.Core.FlightServerModule;
+namespace OpenVMSys.Core.FlightServer.FlightServerModule;
 
 public class Authentication
 {
@@ -13,12 +13,12 @@ public class Authentication
         {
             return false;
         }
-        var addr = client.Client.RemoteEndPoint.ToString().Split(":")[0];
+        var addr = client.Client.RemoteEndPoint?.ToString()?.Split(":")[0];
         if (_banList == null || Refresh() != _banList)
         {
             _banList = Refresh();
         }
-        OpenSDK.Logger<Authentication>.Info("Validating",client.Client.RemoteEndPoint.ToString());
+        OpenSDK.Logger<Authentication>.Info("Validating",client.Client.RemoteEndPoint?.ToString());
         
         return _banList.All(ban => ban != addr);
     }

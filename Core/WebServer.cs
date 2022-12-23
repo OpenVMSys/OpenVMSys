@@ -1,35 +1,54 @@
-using OpenSDK;
+/*
+ * This file is part of OpenVMSys
+ *
+ * OpenVMSys
+ * Copyright (c) 2015 - 2021 OpenVMSys Team
+ *
+ * OpenVMSys free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * OpenVMSys is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+using Microsoft.Extensions.FileProviders;
 using Path = OpenSDK.Path;
 namespace OpenVMSys.Core;
 
-public static class OAuthServer
+public static class WebServer
 {
-    public static void StartOAuthServer(string[] args)
+    public static void StartWebServer(string[] args, OmsConfig config)
     {
-        //Declare config variable
-        var config = new OmsConfig();
+        var webApplicationBuilder = WebApplication.CreateBuilder(args);
 
-//Read config from file
-        config = ConfReader<OmsConfig>.Read(config, Path.Join(("oms.conf")));
-        var authServerBuilder = WebApplication.CreateBuilder(args);
+        webApplicationBuilder.WebHost.UseUrls(config.HostAddr + ":" + config.WebServerPort);
         
-        authServerBuilder.WebHost.UseUrls(config.SiteUrl + "31701");
+        webApplicationBuilder.Services.AddRazorPages();
+
+        var webServer = webApplicationBuilder.Build();
         
-        authServerBuilder.Services.AddRazorPages();
-        var authApp = authServerBuilder.Build();
-        
-        if (authApp.Environment.IsDevelopment())
+        if (webServer.Environment.IsDevelopment())
         {
-            authApp.UseExceptionHandler("/Error");
-            authApp.UseHsts();
+            webServer.UseExceptionHandler("/Error");
+            webServer.UseHsts();
         }
+        webServer.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(Path.Join("Resource")),
+            RequestPath = ""
+        });
+        webServer.UseHttpsRedirection();
+        webServer.UseStaticFiles();
+        webServer.UseAuthentication();
+        webServer.UseRouting();
+        webServer.MapRazorPages();
         
-        authApp.UseHttpsRedirection();
-        authApp.UseStaticFiles();
-        authApp.UseAuthentication();
-        authApp.UseRouting();
-        authApp.MapRazorPages();
-        
-        authApp.Run();
+        webServer.Run();
     }
 }

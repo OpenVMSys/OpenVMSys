@@ -1,6 +1,6 @@
 using System.Net.Sockets;
 
-namespace OpenVMSys.Core.FlightServerModule;
+namespace OpenVMSys.Core.FlightServer.FlightServerModule;
 
 public class Client
 {

@@ -1,4 +1,4 @@
-namespace OpenVMSys.Core.FlightServerModule;
+namespace OpenVMSys.Core.FlightServer.FlightServerModule;
 
 public static class Support
 {

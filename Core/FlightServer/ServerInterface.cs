@@ -9,17 +9,12 @@ public class ServerInterface
 {
     private readonly TcpListener _listener;
     private readonly List<Client> _clients = new();
-    private readonly OmsConfig _config = new();
+    private readonly OfsConfig _config;
 
-    public ServerInterface()
+    public ServerInterface(OfsConfig config)
     {
-        _config = OpenSDK.ConfReader<OmsConfig>.Read(_config, "oms.conf");
-        if (_config.FlightServerPort==null)
-        {
-            OpenSDK.Logger<ServerInterface>.Error("FlightServerPort Not Set");
-            Environment.Exit(-1);
-        }
-        var endPoint = new IPEndPoint(IPAddress.Any, int.Parse(_config.FlightServerPort));
+        _config = config;
+        var endPoint = new IPEndPoint(IPAddress.Any, int.Parse(config.FlightServerPort));
         _listener = new TcpListener(endPoint);
     }
 
@@ -86,7 +81,7 @@ public class ServerInterface
                     break;
                 }
 
-                ServerCommandHandler.Analyze(_clients, client, stream, Encoding.UTF8.GetString(bytes), _config);
+                ClientHandler.Handle(_clients, client, stream, Encoding.UTF8.GetString(bytes), _config);
             }
             catch (Exception e)
             {
